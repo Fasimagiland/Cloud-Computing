@@ -1,5 +1,10 @@
 const tf = require('@tensorflow/tfjs-node');
 const InputError = require('../exceptions/InputError');
+const fs = require('fs').promises; // Menggunakan fs.promises untuk async/await
+const path = require('path');
+
+const kancilStoryPath = path.join(__dirname, '..', 'story', 'kancil.txt');
+const malinKundangStoryPath = path.join(__dirname, '..', 'story', 'malin-kundang.txt');
 
 async function predictClassification(model, image) {
   try {
@@ -7,36 +12,44 @@ async function predictClassification(model, image) {
       .decodeJpeg(image)
       .resizeNearestNeighbor([224, 224])
       .expandDims()
-      .toFloat()
+      .toFloat();
 
     const prediction = model.predict(tensor);
     const score = await prediction.data();
     const confidenceScore = Math.max(...score) * 100;
 
-    const classes = ['Melanocytic nevus', 'Squamous cell carcinoma', 'Vascular lesion'];
+    const classes = ['Kancil', 'Malin-Kundang'];
 
     const classResult = tf.argMax(prediction, 1).dataSync()[0];
-    const label = classes[classResult];
+    const keyword = classes[classResult];
 
-    let explanation, suggestion;
+    let explanation, story;
 
-    if (label === 'Melanocytic nevus') {
-      explanation = "Melanocytic nevus adalah kondisi permukaan kulit memiliki bercak warna yang berasal dari sel-sel melanosit, yakni pembentukan warna kulit dan rambut."
-      suggestion = "Segera konsultasi dengan dokter terdekat jika ukuran semakin membesar dengan cepat, mudah luka, atau berdarah."
-    }
-  
-    if (label === 'Squamous cell carcinoma') {
-      explanation = "Squamous cell carcinoma adalah jenis kanker kulit yang umum dijumpai. Penyakit ini sering tumbuh pada bagian-bagian tubuh yang sering terkena sinar UV."
-      suggestion = "Segera konsultasi dengan dokter terdekat untuk meminimalisasi penyebaran kanker."
-    }
-  
-    if (label === 'Vascular lesion') {
-      explanation = "Vascular lesion adalah penyakit yang dikategorikan sebagai kanker atau tumor. Penyakit ini sering muncul pada bagian kepala dan leher."
-      suggestion = "Segera konsultasi dengan dokter terdekat untuk mengetahui detail terkait tingkat bahaya penyakit."
-  
+    // // Langsung arahkan keyword ke "Malin-Kundang" (ini kalau kamu pen coba buat story baru trs pengen arahin langsung ke sana pakai ini aja)
+    // const keyword = 'Malin-Kundang';
+
+    if (keyword === 'Kancil') {
+      explanation = "Cerita Si Kancil adalah kumpulan dongeng populer di Indonesia yang menceritakan tentang petualangan dan kecerdikan seekor kancil, binatang kecil yang cerdas dan licik.";
+      try {
+        story = await fs.readFile(kancilStoryPath, 'utf8'); // Membaca cerita Kancil dari file
+      } catch (err) {
+        console.error('Error reading Kancil story:', err);
+        story = 'Error reading Kancil story';
+      }
     }
 
-    return { confidenceScore, label, explanation, suggestion };
+    if (keyword === 'Malin-Kundang') {
+      explanation = "Cerita Malin Kundang adalah salah satu legenda populer dari Indonesia, khususnya dari daerah Sumatera Barat.";
+      try {
+        const malinKundangStory = await fs.readFile(malinKundangStoryPath, 'utf8'); // Membaca cerita Malin-Kundang dari file
+        story = malinKundangStory + "\n\nAnda sehat!"; // Menambahkan cerita Malin-Kundang dengan teks tambahan
+      } catch (err) {
+        console.error('Error reading Malin-Kundang story:', err);
+        story = 'Error reading Malin-Kundang story';
+      }
+    }
+
+    return { confidenceScore, keyword, explanation, story };
   } catch (error) {
     throw new InputError(`Terjadi kesalahan input: ${error.message}`);
   }
