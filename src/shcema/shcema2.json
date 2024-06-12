@@ -1,0 +1,301 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "$schema": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string"
+      },
+      "definitions": {
+        "type": "object",
+        "properties": {
+          "Segment": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "properties": {
+                "type": "object",
+                "properties": {
+                  "segmen_id": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "minimum": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "minimum"
+                    ]
+                  },
+                  "teks_cerita": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  },
+                  "kata_yang_disorot": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "items"
+                    ]
+                  }
+                },
+                "required": [
+                  "segmen_id",
+                  "teks_cerita",
+                  "kata_yang_disorot"
+                ]
+              },
+              "required": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "properties",
+              "required"
+            ]
+          }
+        },
+        "required": [
+          "Segment"
+        ]
+      },
+      "properties": {
+        "type": "object",
+        "properties": {
+          "list_stories": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "properties": {
+                    "type": "object",
+                    "properties": {
+                      "judul": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ]
+                      },
+                      "difficult": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "judul",
+                      "difficult"
+                    ]
+                  },
+                  "required": {
+                    "type": "array",
+                    "items": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "properties",
+                  "required"
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "items"
+            ]
+          },
+          "story_detail": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "properties": {
+                "type": "object",
+                "properties": {
+                  "judul": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  },
+                  "isi_cerita": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  },
+                  "segmen_cerita": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "$ref": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "$ref"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "items"
+                    ]
+                  },
+                  "total_count_segmen": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "minimum": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "minimum"
+                    ]
+                  }
+                },
+                "required": [
+                  "judul",
+                  "isi_cerita",
+                  "segmen_cerita",
+                  "total_count_segmen"
+                ]
+              },
+              "required": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "properties",
+              "required"
+            ]
+          }
+        },
+        "required": [
+          "list_stories",
+          "story_detail"
+        ]
+      },
+      "required": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "required": [
+      "$schema",
+      "type",
+      "definitions",
+      "properties",
+      "required"
+    ]
+  }

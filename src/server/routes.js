@@ -2,9 +2,20 @@ const postPredictHandler = require('../server/handler');
 
 const routes = [
   {
-    path: '/predict',
+    path: '/lily',
     method: 'POST',
-    handler: postPredictHandler,
+    handler: (request, h) => postPredictHandler(request, h, 'Lily'),
+    options: {
+      payload: {
+        allow: 'multipart/form-data',
+        multipart: true
+      }
+    }
+  },
+  {
+    path: '/jack',
+    method: 'POST',
+    handler: (request, h) => postPredictHandler(request, h, 'Jack'),
     options: {
       payload: {
         allow: 'multipart/form-data',
@@ -12,6 +23,6 @@ const routes = [
       }
     }
   }
-]
+];
 
 module.exports = routes;
