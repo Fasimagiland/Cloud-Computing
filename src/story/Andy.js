@@ -59,4 +59,8 @@ async function predictClassification(model, image, storySequence = []) {
     return sequence.map(keyword => storyParts[keyword]).join(' ');
   }
 
+<<<<<<< HEAD
 module.exports = predictClassification;
+=======
+module.exports = predictClassification;
+>>>>>>> 6f8cb7a68c33631215aea0b9249a009fe7b5d0d5
