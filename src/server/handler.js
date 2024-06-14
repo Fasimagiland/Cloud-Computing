@@ -1,23 +1,33 @@
 const predictLilyStory = require('../story/Lily’s');
 const predictJackStory = require('../story/Jack');
+const predictAndyStory = require('../story/Andy');
+const predictTigerStory = require('../story/Tiger');
+const predictTurtleStory = require('../story/Turtle');
+
 const crypto = require('crypto');
 const storeData = require('../services/storeData');
 
 async function postPredictHandler(request, h, storyType) {
-  const { image } = request.payload;
+  const { text } = request.payload; // Updated to extract text instead of image
   const { model } = request.server.app;
 
   // Decide which story prediction function to use
   let predictStory;
-  if (storyType === 'Lily') {
+if (storyType === 'Lily') {
     predictStory = predictLilyStory;
-  } else if (storyType === 'Jack') {
+} else if (storyType === 'Jack') {
     predictStory = predictJackStory;
-  } else {
+} else if (storyType === 'Andy') {
+    predictStory = predictAndyStory;
+} else if (storyType === 'Tiger') {
+    predictStory = predictTigerStory;
+} else if (storyType === 'Turtle') {
+    predictStory = predictTurtleStory;
+} else {
     return h.response({ status: 'fail', message: 'Invalid story type' }).code(400);
-  }
+}
 
-  const { confidenceScore, keyword, story } = await predictStory(model, image);
+  const { keyword, story, storySequence } = await predictStory(text); // Updated to use text input
   
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
@@ -26,7 +36,6 @@ async function postPredictHandler(request, h, storyType) {
     "id": id,
     "hasil gambar": keyword,
     "cerita": story,
-    "confidenceScore": confidenceScore,
     "createdAt": createdAt
   };
 
@@ -34,7 +43,7 @@ async function postPredictHandler(request, h, storyType) {
 
   const response = h.response({
     status: 'success',
-    message: confidenceScore > 0.0 ? 'Model is predicted successfully.' : 'Model is predicted successfully but under threshold. Please use the correct picture',
+    message: 'Text is processed successfully.',
     data
   });
   response.code(201);

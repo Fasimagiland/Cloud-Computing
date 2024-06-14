@@ -3,23 +3,42 @@ const InputError = require('../exceptions/InputError');
 
 const classes = ['apple1', 'tShirt', 'butterflies', 'car', 'book', 'rainbow', 'basketball', 'sun1', 'watermelons', 'house', 'sun2', 'stars', 'apple2', 'face'];
 
-async function predictClassification(model, image, storySequence = []) {
+let currentStoryKeyword = null; // Menyimpan keyword cerita saat ini
+
+const keywordsMapping = {
+  apel: ['apple1', 'apple2'],//ini kalau ada keyword line double buat kek gini
+  kaos: 'tShirt',
+  'kupu-kupu': 'butterflies',//karena ada - makanya harus dikasih ''
+  mobil: 'car',
+  buku: 'book',
+  pelangi: 'rainbow',
+  'bola basket': 'basketball',
+  matahari: ['sun1', 'sun2'], // Ubah menjadi array untuk menunjukkan urutan cerita
+  semangka: 'watermelons',
+  rumah: 'house',
+  bintang: 'stars',
+  wajah: 'face'
+};
+
+async function predictClassification(inputString, storySequence = []) {
   try {
-    const tensor = tf.node
-      .decodeJpeg(image)
-      .resizeNearestNeighbor([224, 224])
-      .expandDims()
-      .toFloat();
+    let keyword = null;
+    for (const [key, value] of Object.entries(keywordsMapping)) {
+      if (inputString.toLowerCase().includes(key)) {
+        if (Array.isArray(value)) {
+          keyword = value.find(k => !storySequence.includes(k)) || value[value.length - 1];
+        } else {
+          keyword = value;
+        }
+        // Update currentStoryKeyword
+        currentStoryKeyword = key;
+        break;
+      }
+    }
 
-    const prediction = model.predict(tensor);
-    const score = await prediction.data();
-    const confidenceScore = Math.max(...score) * 100;
-
-    const classResult = tf.argMax(prediction, 1).dataSync()[0];
-    const keyword = classes[classResult];
-
-    // Langsung arahkan keyword ke keyword diinginkan (ini kalau kamu pen coba buat story baru trs pengen arahin langsung ke sana pakai ini aja)
-    // const keyword = 'apple1';
+    if (!keyword) {
+      throw new InputError('No valid keyword found in the input string');
+    }
 
     // Add the new keyword to the story sequence
     storySequence.push(keyword);
@@ -27,31 +46,43 @@ async function predictClassification(model, image, storySequence = []) {
     // Generate the story based on the sequence of keywords
     let story = generateStory(storySequence);
 
-    return { confidenceScore, keyword, story, storySequence };
+    // Perbaiki logika untuk mengupdate keywordsMapping jika currentStoryKeyword adalah array
+    if (Array.isArray(keywordsMapping[currentStoryKeyword])) {
+      const currentIndex = keywordsMapping[currentStoryKeyword].indexOf(keyword);
+      if (currentIndex !== -1 && currentIndex < keywordsMapping[currentStoryKeyword].length - 1) {
+        keywordsMapping[currentStoryKeyword] = keywordsMapping[currentStoryKeyword][currentIndex + 1];
+      }
+    }
+
+    return { keyword, story, storySequence };
   } catch (error) {
     throw new InputError(`Terjadi kesalahan input: ${error.message}`);
   }
 }
 
-function generateStory(sequence, keyword) {
-    const storyParts = {
-      apple1: "There was a boy named Jack who loved exploring. One bright morning, he grabbed an apple from the kitchen table and set out on an adventure.",
-      tShirt: "Jack wore his favorite t-shirt, as he wandered into the forest.",
-      butterflies: "He brought along a book about butterflies, hoping to spot some during his journey.",
-      car: "As he walked, he saw a beautiful butterfly land on an old, rusted car abandoned in the woods.",
-      book: "Continuing his walk, Jack found himself in a meadow where he decided to take a break. He sat on soft grass and began reading his book.",
-      rainbow: "Suddenly, he looked up and saw a rainbow stretching across the sky, a breathtaking sight that made him smile.",
-      basketball: "Nearby, a group of children were playing basketball. Jack joined them for a quick game, enjoying the fun and laughter.",
-      sun1: "As the sun began to set, casting a warm glow over everything, Jack realized it was time to head home.",
-      watermelons: "On his way back, he passed by a market stall where a vendor was selling juicy watermelons. Jack bought a slice and savored its sweetness as he walked. When he reached home, his sister adjusting her eyeglasses while working on her homework.",
-      house: "Their father was preparing dinner, and the aroma filled the house. After eating, Jack's family gathered in the living room. His mother told them a story about the",
-      sun2: "sun and how it always rose again, no matter how dark the night had been.",
-      stars: "Later, Jack went to bed, feeling content. He looked out his window at the night sky, where stars twinkled brightly.",
-      apple2: "He knew that his day had been filled with little treasures—an apple, a butterfly, a rainbow, and the joy of playing with friends.",
-      face: "These simple pleasures reminded him of the beauty in everyday life, and he fell asleep with a smile on his face, dreaming of his next adventure."
-    };
-  
-    return sequence.map(keyword => storyParts[keyword]).join(' ');
-  }
+
+function generateStory(sequence) {
+  const storyParts = {
+    apple1: "Ada seorang anak laki-laki bernama Fajar yang suka berpetualang. Suatu pagi yang cerah, Fajar mengambil sebuah <b>apel</b> dari meja dapur dan berangkat untuk berpetualang.",
+    tShirt: "Fajar mengenakan <b>kaos</b> favoritnya, saat dia menjelajahi hutan.",
+    butterflies: "Fajar membawa sebuah buku tentang <b>kupu-kupu</b>, berharap bisa melihat beberapa kupu-kupu selama perjalanannya.",
+    car: "Saat berjalan, Fajar melihat seekor kupu-kupu yang indah hinggap di sebuah <b>mobil</b> tua berkarat yang ditinggalkan di hutan.",
+    book: "Melanjutkan perjalanannya, Fajar menemukan padang rumput di mana dia memutuskan untuk beristirahat. Fajar duduk di atas rumput yang lembut dan mulai membaca <b>buku</b> yang ia bawa.",
+    rainbow: "Tiba-tiba, Fajar melihat ke atas dan melihat <b>pelangi</b> membentang di langit, pemandangan yang menakjubkan yang membuatnya tersenyum.",
+    basketball: "Di dekatnya, sekelompok anak-anak sedang bermain <b>bola basket</b>. Fajar bergabung dengan mereka untuk bermain sebentar, menikmati kesenangan dan tawa.",
+    sun1: "Saat <b>matahari</b> mulai terbenam, Fajar menyadari sudah waktunya pulang.",
+    watermelons: "Dalam perjalanan pulang, Fajar melewati sebuah toko yang menjual <b>buah semangka</b>.",
+    house: "Ketika Fajar sampai di <b>rumah</b>, ayah dan ibunya sedang menyiapkan makan malam.",
+    sun2: "Setelah makan, keluarga Fajar berkumpul di ruang tamu. Ibunya menceritakan kisah tentang <b>matahari</b> dan bagaimana matahari selalu terbit lagi, tidak peduli seberapa gelap malamnya.",
+    stars: "Kemudian, Fajar pergi tidur dengan perasaan senang. Dia melihat keluar jendela kamarnya ke langit malam, di mana <b>bintang</b> berkelap-kelip dengan terang.",
+    apple2: "Dia tahu bahwa harinya telah dipenuhi dengan harta kecil—sebuah <b>apel</b>, kupu-kupu, pelangi, dan kebahagiaan bermain dengan teman-teman.",
+    face: "Kesederhanaan ini mengingatkannya akan keindahan dalam kehidupan sehari-hari, dan dia tertidur dengan senyum di <b>wajah</b> nya, bermimpi tentang petualangan berikutnya."
+  };
+
+  // Memastikan urutan story sesuai dengan sequence
+  const story = sequence.map(keyword => storyParts[keyword]).join(' ');
+
+  return story;
+}
 
 module.exports = predictClassification;

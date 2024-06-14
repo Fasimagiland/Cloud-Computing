@@ -5,11 +5,10 @@ const routes = [
     method: 'GET',
     path: '/',
     handler: (request, h) => {
-
-        return 'success!';
+      return 'success!';
     },
   },
-
+  
   {
     method: 'GET',
     path: '/stories',
@@ -21,12 +20,12 @@ const routes = [
           id: "story1"
         },
         {
-          title: "Lily's",
+          title: "Lily's Adventure",
           difficulty: "Normal",
           id: "story2"
         },
         {
-          title: "Tiger Adventures in the wild",
+          title: "Tiger Adventures in the Wild",
           difficulty: "Hard",
           id: "story3"
         },
@@ -38,7 +37,7 @@ const routes = [
       ];
       
       return h.response(stories).code(200);
-      },
+    },
   },
 
   {
@@ -47,8 +46,8 @@ const routes = [
     handler: (request, h) => postPredictHandler(request, h, 'Lily'),
     options: {
       payload: {
-        allow: 'multipart/form-data',
-        multipart: true
+        allow: 'application/json',
+        parse: true
       }
     }
   },
@@ -59,8 +58,44 @@ const routes = [
     handler: (request, h) => postPredictHandler(request, h, 'Jack'),
     options: {
       payload: {
-        allow: 'multipart/form-data',
-        multipart: true
+        allow: 'application/json',
+        parse: true
+      }
+    }
+  },
+
+  {
+    path: '/stories/stories3',
+    method: 'POST',
+    handler: (request, h) => postPredictHandler(request, h, 'Andy'),
+    options: {
+      payload: {
+        allow: 'application/json',
+        parse: true
+      }
+    }
+  },
+
+  {
+    path: '/stories/stories4',
+    method: 'POST',
+    handler: (request, h) => postPredictHandler(request, h, 'Tiger'),
+    options: {
+      payload: {
+        allow: 'application/json',
+        parse: true
+      }
+    }
+  },
+
+  {
+    path: '/stories/stories5',
+    method: 'POST',
+    handler: (request, h) => postPredictHandler(request, h, 'Turtle'),
+    options: {
+      payload: {
+        allow: 'application/json',
+        parse: true
       }
     }
   }
