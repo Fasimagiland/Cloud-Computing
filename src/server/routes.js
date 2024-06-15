@@ -25,7 +25,7 @@ const routes = [
           id: "story2"
         },
         {
-          title: "Tiger Adventures in the Wild",
+          title: "Andy’s Holiday!",
           difficulty: "Hard",
           id: "story3"
         },
@@ -78,18 +78,6 @@ const routes = [
 
   {
     path: '/stories/stories4',
-    method: 'POST',
-    handler: (request, h) => postPredictHandler(request, h, 'Tiger'),
-    options: {
-      payload: {
-        allow: 'application/json',
-        parse: true
-      }
-    }
-  },
-
-  {
-    path: '/stories/stories5',
     method: 'POST',
     handler: (request, h) => postPredictHandler(request, h, 'Turtle'),
     options: {

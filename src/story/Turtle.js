@@ -1,25 +1,41 @@
 const tf = require('@tensorflow/tfjs-node');
 const InputError = require('../exceptions/InputError');
 
-const classes = ['rabbit', 'turtle', 'river', 'lions', 'flood'];
+const classes = ['rabbit', 'grass', 'bird', 'river', 'fish', 'duck', 'banana', 'cactus', 'fish', 'tree'];
 
-async function predictClassification(model, image, storySequence = []) {
-    try {
-      const tensor = tf.node
-        .decodeJpeg(image)
-        .resizeNearestNeighbor([224, 224])
-        .expandDims()
-        .toFloat();
-  
-      const prediction = model.predict(tensor);
-      const score = await prediction.data();
-      const confidenceScore = Math.max(...score) * 100;
-  
-      const classResult = tf.argMax(prediction, 1).dataSync()[0];
-      const keyword = classes[classResult];
+let currentStoryKeyword = null; // Menyimpan keyword cerita saat ini
 
-      // // Langsung arahkan keyword ke keyword diinginkan (ini kalau kamu pen coba buat story baru trs pengen arahin langsung ke sana pakai ini aja)
-    // const keyword = 'rabbit';
+const keywordsMapping = {
+  kelinci: 'rabbit',
+  rumput: 'grass',
+  burung: 'bird',
+  sungai: 'river',
+  ikan: ['fish1', 'fish2'],
+  bebek: 'duck',
+  pisang: 'banana',
+  kaktus: 'cactus',
+  pohon: 'tree'
+};
+
+async function predictClassification(inputString, storySequence = []) {
+  try {
+    let keyword = null;
+    for (const [key, value] of Object.entries(keywordsMapping)) {
+      if (inputString.toLowerCase().includes(key)) {
+        if (Array.isArray(value)) {
+          keyword = value.find(k => !storySequence.includes(k)) || value[value.length - 1];
+        } else {
+          keyword = value;
+        }
+        // Update currentStoryKeyword
+        currentStoryKeyword = key;
+        break;
+      }
+    }
+
+    if (!keyword) {
+      throw new InputError('No valid keyword found in the input string');
+    }
 
     // Add the new keyword to the story sequence
     storySequence.push(keyword);
@@ -27,7 +43,15 @@ async function predictClassification(model, image, storySequence = []) {
     // Generate the story based on the sequence of keywords
     let story = generateStory(storySequence);
 
-    return { confidenceScore, keyword, story, storySequence };
+    // Perbaiki logika untuk mengupdate keywordsMapping jika currentStoryKeyword adalah array
+    if (Array.isArray(keywordsMapping[currentStoryKeyword])) {
+      const currentIndex = keywordsMapping[currentStoryKeyword].indexOf(keyword);
+      if (currentIndex !== -1 && currentIndex < keywordsMapping[currentStoryKeyword].length - 1) {
+        keywordsMapping[currentStoryKeyword] = keywordsMapping[currentStoryKeyword][currentIndex + 1];
+      }
+    }
+
+    return { keyword, story, storySequence };
   } catch (error) {
     throw new InputError(`Terjadi kesalahan input: ${error.message}`);
   }
@@ -35,14 +59,22 @@ async function predictClassification(model, image, storySequence = []) {
 
 function generateStory(sequence) {
     const storyParts = {
-        rabbit:"In a peaceful forest, a turtle and a rabbit coexist peacefully.",
-        turtle:"turtle , slow but diligent, always try hard in every task.",
-        river:"The hare, fast but arrogant, often underestimates the tortoise's efforts. One day, heavy rain hit the forest, causing the river to overflow.",
-        lions:"The turtle patiently asked for help from other lions and managed to save many lives.",
-        flood:"The arrogant rabbit laughed at the turtle's efforts, but ended up getting caught in a flood.",
+        rabbit:"Di sebuah hutan, hiduplah seekor kelinci putih yang sangat menyukai wortel.",
+        grass:"Setiap pagi, kelinci ini melompat-lompat di antara rumput yang hijau untuk mencari makanan favoritnya.",
+        bird:"Di dekat situ, seekor burung kecil berterbangan untuk mencari biji-bijian di antara rumput.",
+        river:"Tidak jauh dari tempat itu, terdapat sebuah sungai yang airnya jernih.",
+        fish1:"Sungai itu banyak dihuni oleh ikan yang berenang bebas.",
+        duck:"Kelinci sering datang ke tepi sungai untuk minum air yang segar sambil melihat bebek berenang dan bermain di air.",
+        banana:"Di tepi sungai, tumbuhlah beberapa pohon pisang yang sering menarik perhatian hewan-hewan lain dengan buahnya yang manis.",
+        cactus:"Di sisi lain dari hutan, tumbuh kaktus yang kuat bertahan di tanah yang kering, menjadi pemandangan kontras dengan rumput hijau di sekitar sungai.",
+        fish2:"Begitulah kehidupan di hutan tersebut, di mana kelinci, burung, ikan, dan bebek hidup berdampingan.",
+        tree:"Hutan yang memiliki berbagai pohon lebat ini menjadi tempat yang penuh warna dan kehidupan, di mana setiap hari adalah petualangan baru bagi para penghuninya.",
     };
 
-    return sequence.map(keyword => storyParts[keyword]).join(' ');
+     // Memastikan urutan story sesuai dengan sequence
+  const story = sequence.map(keyword => storyParts[keyword]).join(' ');
+
+  return story;
 }
 
 module.exports = predictClassification;

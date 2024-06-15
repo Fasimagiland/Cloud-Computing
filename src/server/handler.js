@@ -1,7 +1,6 @@
 const predictLilyStory = require('../story/Lily’s');
 const predictJackStory = require('../story/Jack');
 const predictAndyStory = require('../story/Andy');
-const predictTigerStory = require('../story/Tiger');
 const predictTurtleStory = require('../story/Turtle');
 
 const crypto = require('crypto');
@@ -19,8 +18,6 @@ if (storyType === 'Lily') {
     predictStory = predictJackStory;
 } else if (storyType === 'Andy') {
     predictStory = predictAndyStory;
-} else if (storyType === 'Tiger') {
-    predictStory = predictTigerStory;
 } else if (storyType === 'Turtle') {
     predictStory = predictTurtleStory;
 } else {
