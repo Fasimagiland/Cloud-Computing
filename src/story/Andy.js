@@ -1,62 +1,94 @@
 const tf = require('@tensorflow/tfjs-node');
 const InputError = require('../exceptions/InputError');
 
-const classes =['suitcase','airplane','clouds','beach ball','sandcastle','dog','butterfly','ice cream','dolphin','cookie','school bus','giraffe','monkey','elephant','zebra','basketball','sandwiches','butterfly','sun'];
+const classes =['suitcase','airplane','clouds','beach','dog','butterfly','ice cream','dolphin','cookie','bus','leaves','tree','grass','basketball','butterfly','sun', 'house'];
 
-async function predictClassification(model, image, storySequence = []) {
-    try {
-      const tensor = tf.node
-        .decodeJpeg(image)
-        .resizeNearestNeighbor([224, 224])
-        .expandDims()
-        .toFloat();
-  
-      const prediction = model.predict(tensor);
-      const score = await prediction.data();
-      const confidenceScore = Math.max(...score) * 100;
-  
-      const classResult = tf.argMax(prediction, 1).dataSync()[0];
-      const keyword = classes[classResult];
-  
-      // Langsung arahkan keyword ke keyword diinginkan (ini kalau kamu pen coba buat story baru trs pengen arahin langsung ke sana pakai ini aja)
-      // const keyword = 'airplane';
-  
-      // Add the new keyword to the story sequence
-      storySequence.push(keyword);
-  
-      // Generate the story based on the sequence of keywords
-      let story = generateStory(storySequence);
-  
-      return { confidenceScore, keyword, story, storySequence };
-    } catch (error) {
-      throw new InputError(`Terjadi kesalahan input: ${error.message}`);
+let currentStoryKeyword = null; // Menyimpan keyword cerita saat ini
+
+const keywordsMapping = {
+  koper: 'suitcase',
+  pesawat: 'airplane',
+  awan: 'clouds',
+  pantai: 'beach',
+  anjing: 'dog',
+  'kupu-kupu': ['kupu-kupu1', 'kupu-kupu2'],
+  eskrim: 'icecream',
+  'lumba-lumba': 'dolphin',
+  kukis: 'cookie',
+  bus: 'bus',
+  daun: 'leaves',
+  pohon: 'tree',
+  rumput: 'grass',
+  'bola basket': 'basketball',
+  matahari: 'sun',
+  rumah: 'house'
+};
+
+async function predictClassification(inputString, storySequence = []) {
+  try {
+    let keyword = null;
+    for (const [key, value] of Object.entries(keywordsMapping)) {
+      if (inputString.toLowerCase().includes(key)) {
+        if (Array.isArray(value)) {
+          keyword = value.find(k => !storySequence.includes(k)) || value[value.length - 1];
+        } else {
+          keyword = value;
+        }
+        // Update currentStoryKeyword
+        currentStoryKeyword = key;
+        break;
+      }
     }
-  }
 
-  function generateStory(sequence, keyword) {
-    const storyParts = {
-        suitcase:"Andy the boy packed his suitcase for a fun vacation.",
-        airplane:"He and his family boarded a big airplane to the beach.",
-        clouds:"Andy looked out the window and saw fluffy clouds.",
-        beachball:"At the beach, Andy played with a colorful beach ball.",
-        sandcastle:"He built a sandcastle and found a pretty shell.",
-        dog:"A friendly dog ran by and wagged its tail.",
-        butterfly:"Andy saw a butterfly fluttering around some flowers.",
-        icecream:"He enjoyed a yummy ice cream cone with sprinkles.",
-        dolphin:"In the water, he saw a playful dolphin jumping.",
-        cookie:"Andy's mom gave him a delicious cookie as a snack.",
-        schoolbus:"He rode a school bus to the nearby zoo.",
-        giraffe:"At the zoo, Andy saw a tall giraffe eating leaves.",
-        monkey:" A playful monkey swung from tree to tree, making Andy laugh.",
-        elephant:"He fed a gentle elephant some peanuts and smiled.",
-        zebra:"Andy saw a striped zebra grazing in the grass.",
-        basketball:"After the zoo, Andy went to a park. He played basketball with some new friends.",
-        sandwiches:"They had a picnic with sandwiches.",
-        butterfly:"Andy found a butterfly and watched it fly away.",
-        sun:"As the sun set, Andy felt tired but happy. He dreamed of more fun adventures tomorrow.",
-    };
-  
-    return sequence.map(keyword => storyParts[keyword]).join(' ');
+    if (!keyword) {
+      throw new InputError('No valid keyword found in the input string');
+    }
+
+    // Add the new keyword to the story sequence
+    storySequence.push(keyword);
+
+    // Generate the story based on the sequence of keywords
+    let story = generateStory(storySequence);
+
+    // Perbaiki logika untuk mengupdate keywordsMapping jika currentStoryKeyword adalah array
+    if (Array.isArray(keywordsMapping[currentStoryKeyword])) {
+      const currentIndex = keywordsMapping[currentStoryKeyword].indexOf(keyword);
+      if (currentIndex !== -1 && currentIndex < keywordsMapping[currentStoryKeyword].length - 1) {
+        keywordsMapping[currentStoryKeyword] = keywordsMapping[currentStoryKeyword][currentIndex + 1];
+      }
+    }
+
+    return { keyword, story, storySequence };
+  } catch (error) {
+    throw new InputError(`Terjadi kesalahan input: ${error.message}`);
   }
+}
+
+function generateStory(sequence, keyword) {
+  const storyParts = {
+    suitcase:"Adi, seorang anak laki-laki, mengemas <b>koper</b> untuk liburan yang menyenangkan.",
+    airplane:"Liburan kali ini, Adi dan keluarganya naik <b>pesawat</b>.",
+    clouds:"Adi melihat keluar jendela dan melihat <b>awan</b> yang lembut.",
+    beach:"Di <b>pantai</b>, Adi bermain dengan bola pantai yang berwarna-warni.",
+    dog:"Di Sekitar pantai, Adi melihat seekor <b>anjing</b> jinak yang berlari dan mengibaskan ekornya.",
+    butterfly1:"Adi melihat <b>kupu-kupu</b> yang berterbangan di sekitar bunga-bunga.",
+    icecream:"Adi menikmati <b>es krim</b> yang lezat dengan taburan.",
+    dolphin:"Di air, Adi melihat <b>lumba-lumba</b> yang melompat-lompat.",
+    cookie:"Ibu Adi memberinya <b>kukis</b> yang lezat sebagai camilan.",
+    bus:"Hari berikutnya, Adi naik <b>bus</b> ke kebun binatang terdekat.",
+    leaves:"Di kebun binatang, Adi melihat jerapah tinggi yang sedang makan <b>daun</b>.",
+    tree:"Seekor monyet yang suka bermain berayun dari <b>pohon</b> ke pohon, membuat Andy tertawa.",
+    grass:"Adi melihat zebra bergaris yang sedang memakan <b>rumput</b>.",
+    basketball:"Setelah dari kebun binatang, Adi pergi ke taman dan bermain <b>bola basket</b>.",
+    butterfly2:"Adi menemukan <b>kupu-kupu</b> dan melihatnya terbang pergi.",
+    sun:"Saat <b>matahari</b> terbenam.",
+    house:"Adi merasa lelah tapi bahagia dan dia pun kembali ke <b>rumah</b>.",
+  };
+
+  // Memastikan urutan story sesuai dengan sequence
+  const story = sequence.map(keyword => storyParts[keyword]).join(' ');
+
+  return story;
+}
 
 module.exports = predictClassification;
