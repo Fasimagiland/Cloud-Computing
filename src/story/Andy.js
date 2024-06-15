@@ -1,7 +1,11 @@
 const tf = require('@tensorflow/tfjs-node');
 const InputError = require('../exceptions/InputError');
 
+<<<<<<< HEAD
 const classes =['suitcase','airplane','clouds','beach','dog','butterfly1','ice cream','dolphin','cookie','bus','leaves','tree','grass','basketball','butterfly2','sun', 'house'];
+=======
+const classes =['suitcase','airplane','clouds','beach','dog','butterfly','ice cream','dolphin','cookie','bus','leaves','tree','grass','basketball','butterfly','sun', 'house'];
+>>>>>>> origin/sertaMulia-lab
 
 let currentStoryKeyword = null; // Menyimpan keyword cerita saat ini
 
@@ -11,7 +15,11 @@ const keywordsMapping = {
   awan: 'clouds',
   pantai: 'beach',
   anjing: 'dog',
+<<<<<<< HEAD
   'kupu-kupu': ['butterfly1', 'butterfly2'],
+=======
+  'kupu-kupu': ['kupu-kupu1', 'kupu-kupu2'],
+>>>>>>> origin/sertaMulia-lab
   eskrim: 'icecream',
   'lumba-lumba': 'dolphin',
   kukis: 'cookie',
