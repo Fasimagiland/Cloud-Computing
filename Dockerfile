@@ -8,8 +8,6 @@ RUN npm install
 
 COPY . .
 
-ENV PORT=3000
-
-ENV MODEL_URL=https://storage.googleapis.com/mlgc-sub-gcc-bintang/submissions-model/model.json
+ENV PORT=8000
 
 CMD ["npm", "start"]

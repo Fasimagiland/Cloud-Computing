@@ -1,20 +1,21 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
-const routes = require('../server/routes');
-const InputError = require('../exceptions/InputError');
+const routes = require('./routes');
+const InputError = require('../exceptions/InputError'); // Pastikan path yang benar
 
 (async () => {
     const server = Hapi.server({
-        port: 8000,
+        port: process.env.PORT || 3000,
         host: '0.0.0.0',
         routes: {
             cors: {
-              origin: ['*'],
+                origin: ['*'],
             },
         },
     });
-
+    
+    // Menambahkan routes lainnya
     server.route(routes);
 
     server.ext('onPreResponse', function (request, h) {
@@ -24,8 +25,8 @@ const InputError = require('../exceptions/InputError');
             const newResponse = h.response({
                 status: 'fail',
                 message: `${response.message} gambar tidak cocok.`
-            })
-            newResponse.code(response.statusCode)
+            });
+            newResponse.code(400); // Sesuaikan dengan status kode yang diinginkan
             return newResponse;
         }
 
@@ -33,8 +34,8 @@ const InputError = require('../exceptions/InputError');
             const newResponse = h.response({
                 status: 'fail',
                 message: response.message
-            })
-            newResponse.code(response.output.statusCode)
+            });
+            newResponse.code(response.output.statusCode);
             return newResponse;
         }
 
@@ -42,5 +43,5 @@ const InputError = require('../exceptions/InputError');
     });
 
     await server.start();
-    console.log(`Server start at: ${server.info.uri}`);
+    console.log(`Server started at: ${server.info.uri}`);
 })();

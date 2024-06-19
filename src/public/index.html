@@ -1,0 +1,48 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stories</title>
+</head>
+<body>
+  <h1>List of Stories</h1>
+  <ul id="stories-list"></ul>
+
+  <script>
+    const storiesList = document.getElementById('stories-list');
+
+    // Function to fetch stories from server
+    function fetchStories() {
+      fetch('/stories')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch stories');
+          }
+          return response.json();
+        })
+        .then(stories => {
+          stories.forEach(story => {
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = `/stories/${story.id}`;
+            link.textContent = `${story.title} (${story.difficulty})`;
+            listItem.appendChild(link);
+            storiesList.appendChild(listItem);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching stories:', error);
+          const errorMessage = document.createElement('p');
+          errorMessage.textContent = 'Failed to load stories. Please try again later.';
+          storiesList.appendChild(errorMessage);
+        });
+    }
+
+    // Call fetchStories when page loads
+    document.addEventListener('DOMContentLoaded', fetchStories);
+  </script>
+</body>
+</html>

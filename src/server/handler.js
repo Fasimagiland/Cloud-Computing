@@ -8,7 +8,7 @@ const storeData = require('../services/storeData');
 
 async function postPredictHandler(request, h, storyType) {
   const { text } = request.payload; // Updated to extract text instead of image
-  const { model } = request.server.app;
+  // const { model } = request.server.app;
 
   // Decide which story prediction function to use
   let predictStory;
@@ -24,7 +24,8 @@ if (storyType === 'Lily') {
     return h.response({ status: 'fail', message: 'Invalid story type' }).code(400);
 }
 
-  const { keyword, story, storySequence } = await predictStory(text); // Updated to use text input
+  // const { keyword, story, storySequence } = await predictStory(text); // Updated to use text input
+  const { keyword, story } = await predictStory(text); // Updated to use text input
   
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();

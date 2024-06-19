@@ -6,9 +6,9 @@ const classes = ['apple1', 'tShirt', 'butterflies', 'car', 'book', 'rainbow', 'b
 let currentStoryKeyword = null; // Menyimpan keyword cerita saat ini
 
 const keywordsMapping = {
-  apel: ['apple1', 'apple2'],//ini kalau ada keyword line double buat kek gini
+  apel: ['apple1', 'apple2'], // ini kalau ada keyword line double buat kek gini
   kaos: 'tShirt',
-  'kupu-kupu': 'butterflies',//karena ada - makanya harus dikasih ''
+  'kupu-kupu': 'butterflies', // karena ada - makanya harus dikasih ''
   mobil: 'car',
   buku: 'book',
   pelangi: 'rainbow',
@@ -19,6 +19,12 @@ const keywordsMapping = {
   bintang: 'stars',
   wajah: 'face'
 };
+
+// Daftar urutan kata yang diharapkan
+const expectedOrder = [
+  'apple1', 'tShirt', 'butterflies', 'car', 'book', 'rainbow', 'basketball',
+  'sun1', 'watermelons', 'house', 'sun2', 'stars', 'apple2', 'face'
+];
 
 async function predictClassification(inputString, storySequence = []) {
   try {
@@ -41,16 +47,29 @@ async function predictClassification(inputString, storySequence = []) {
     }
 
     // Add the new keyword to the story sequence
+    if (storySequence.length > 0) {
+      const lastKeyword = storySequence[storySequence.length - 1];
+      const lastIndex = expectedOrder.indexOf(lastKeyword);
+      const nextExpectedKeyword = expectedOrder[lastIndex + 1];
+
+      if (keyword !== nextExpectedKeyword) {
+        throw new InputError(`Keyword "${keyword}" is not in the expected order. Expected: "${nextExpectedKeyword}"`);
+      }
+    }
+
     storySequence.push(keyword);
 
     // Generate the story based on the sequence of keywords
     let story = generateStory(storySequence);
 
-    // Perbaiki logika untuk mengupdate keywordsMapping jika currentStoryKeyword adalah array
-    if (Array.isArray(keywordsMapping[currentStoryKeyword])) {
+     // Perbaiki logika untuk mengupdate keywordsMapping jika currentStoryKeyword adalah array
+     if (Array.isArray(keywordsMapping[currentStoryKeyword])) {
       const currentIndex = keywordsMapping[currentStoryKeyword].indexOf(keyword);
-      if (currentIndex !== -1 && currentIndex < keywordsMapping[currentStoryKeyword].length - 1) {
-        keywordsMapping[currentStoryKeyword] = keywordsMapping[currentStoryKeyword][currentIndex + 1];
+      if (currentIndex !== -1) {
+        if (currentIndex < keywordsMapping[currentStoryKeyword].length - 1) {
+          // Move to the next element in the array
+          keywordsMapping[currentStoryKeyword] = keywordsMapping[currentStoryKeyword].slice(currentIndex + 1).concat(keywordsMapping[currentStoryKeyword].slice(0, currentIndex + 1));
+        }
       }
     }
 
@@ -60,23 +79,22 @@ async function predictClassification(inputString, storySequence = []) {
   }
 }
 
-
 function generateStory(sequence) {
   const storyParts = {
-    apple1: "Ada seorang anak laki-laki bernama Fajar yang suka berpetualang. Suatu pagi yang cerah, Fajar mengambil sebuah <b>apel</b> dari meja dapur dan berangkat untuk berpetualang.",
-    tShirt: "Fajar mengenakan <b>kaos</b> favoritnya, saat dia menjelajahi hutan.",
-    butterflies: "Fajar membawa sebuah buku tentang <b>kupu-kupu</b>, berharap bisa melihat beberapa kupu-kupu selama perjalanannya.",
-    car: "Saat berjalan, Fajar melihat seekor kupu-kupu yang indah hinggap di sebuah <b>mobil</b> tua berkarat yang ditinggalkan di hutan.",
-    book: "Melanjutkan perjalanannya, Fajar menemukan padang rumput di mana dia memutuskan untuk beristirahat. Fajar duduk di atas rumput yang lembut dan mulai membaca <b>buku</b> yang ia bawa.",
-    rainbow: "Tiba-tiba, Fajar melihat ke atas dan melihat <b>pelangi</b> membentang di langit, pemandangan yang menakjubkan yang membuatnya tersenyum.",
-    basketball: "Di dekatnya, sekelompok anak-anak sedang bermain <b>bola basket</b>. Fajar bergabung dengan mereka untuk bermain sebentar, menikmati kesenangan dan tawa.",
-    sun1: "Saat <b>matahari</b> mulai terbenam, Fajar menyadari sudah waktunya pulang.",
-    watermelons: "Dalam perjalanan pulang, Fajar melewati sebuah toko yang menjual <b>buah semangka</b>.",
-    house: "Ketika Fajar sampai di <b>rumah</b>, ayah dan ibunya sedang menyiapkan makan malam.",
-    sun2: "Setelah makan, keluarga Fajar berkumpul di ruang tamu. Ibunya menceritakan kisah tentang <b>matahari</b> dan bagaimana matahari selalu terbit lagi, tidak peduli seberapa gelap malamnya.",
-    stars: "Kemudian, Fajar pergi tidur dengan perasaan senang. Dia melihat keluar jendela kamarnya ke langit malam, di mana <b>bintang</b> berkelap-kelip dengan terang.",
-    apple2: "Dia tahu bahwa harinya telah dipenuhi dengan harta kecil—sebuah <b>apel</b>, kupu-kupu, pelangi, dan kebahagiaan bermain dengan teman-teman.",
-    face: "Kesederhanaan ini mengingatkannya akan keindahan dalam kehidupan sehari-hari, dan dia tertidur dengan senyum di <b>wajah</b> nya, bermimpi tentang petualangan berikutnya."
+    apple1: "Fajar mengenakan <span style='color:red'>(kaos)</span> favoritnya, saat dia menjelajahi hutan.",
+    tShirt: "Fajar membawa sebuah buku tentang <span style='color:red'>(kupu-kupu)</span>, berharap bisa melihat beberapa kupu-kupu selama perjalanannya.",
+    butterflies: "Saat berjalan, Fajar melihat seekor kupu-kupu yang indah hinggap di sebuah <span style='color:red'>(mobil)</span> tua berkarat yang ditinggalkan di hutan.",
+    car: "Melanjutkan perjalanannya, Fajar menemukan padang rumput di mana dia memutuskan untuk beristirahat. Fajar duduk di atas rumput yang lembut dan mulai membaca <span style='color:red'>(buku)</span> yang ia bawa.",
+    book: "Tiba-tiba, Fajar melihat ke atas dan melihat <span style='color:red'>(pelangi)</span> membentang di langit, pemandangan yang menakjubkan yang membuatnya tersenyum.",
+    rainbow: "Di dekatnya, sekelompok anak-anak sedang bermain <span style='color:red'>(bola basket)</span>. Fajar bergabung dengan mereka untuk bermain sebentar, menikmati kesenangan dan tawa.",
+    basketball: "Saat <span style='color:red'>(matahari)</span> mulai terbenam, Fajar menyadari sudah waktunya pulang.",
+    sun1: "Dalam perjalanan pulang, Fajar melewati sebuah toko yang menjual <span style='color:red'>(buah semangka)</span>.",
+    watermelons: "Ketika Fajar sampai di <span style='color:red'>(rumah)</span>, ayah dan ibunya sedang menyiapkan makan malam.",
+    house: "Setelah makan, keluarga Fajar berkumpul di ruang tamu. Ibunya menceritakan kisah tentang <span style='color:red'>(matahari)</span> dan bagaimana matahari selalu terbit lagi, tidak peduli seberapa gelap malamnya.",
+    sun2: "Kemudian, Fajar pergi tidur dengan perasaan senang. Dia melihat keluar jendela kamarnya ke langit malam, di mana <span style='color:red'>(bintang)</span> berkelap-kelip dengan terang.",
+    stars: "Dia tahu bahwa harinya telah dipenuhi dengan harta kecil—sebuah <span style='color:red'>(apel)</span>, kupu-kupu, pelangi, dan kebahagiaan bermain dengan teman-teman.",
+    apple2: "Kesederhanaan ini mengingatkannya akan keindahan dalam kehidupan sehari-hari, dan dia tertidur dengan senyum di <span style='color:red'>(wajah)</span> nya, bermimpi tentang petualangan berikutnya.",
+    face: "Greet Jobs",
   };
 
   // Memastikan urutan story sesuai dengan sequence

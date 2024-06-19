@@ -1,11 +1,8 @@
 const tf = require('@tensorflow/tfjs-node');
 const InputError = require('../exceptions/InputError');
 
-<<<<<<< HEAD
 const classes =['suitcase','airplane','clouds','beach','dog','butterfly1','ice cream','dolphin','cookie','bus','leaves','tree','grass','basketball','butterfly2','sun', 'house'];
-=======
-const classes =['suitcase','airplane','clouds','beach','dog','butterfly','ice cream','dolphin','cookie','bus','leaves','tree','grass','basketball','butterfly','sun', 'house'];
->>>>>>> origin/sertaMulia-lab
+
 
 let currentStoryKeyword = null; // Menyimpan keyword cerita saat ini
 
@@ -15,11 +12,7 @@ const keywordsMapping = {
   awan: 'clouds',
   pantai: 'beach',
   anjing: 'dog',
-<<<<<<< HEAD
   'kupu-kupu': ['butterfly1', 'butterfly2'],
-=======
-  'kupu-kupu': ['kupu-kupu1', 'kupu-kupu2'],
->>>>>>> origin/sertaMulia-lab
   eskrim: 'icecream',
   'lumba-lumba': 'dolphin',
   kukis: 'cookie',
@@ -61,8 +54,11 @@ async function predictClassification(inputString, storySequence = []) {
     // Perbaiki logika untuk mengupdate keywordsMapping jika currentStoryKeyword adalah array
     if (Array.isArray(keywordsMapping[currentStoryKeyword])) {
       const currentIndex = keywordsMapping[currentStoryKeyword].indexOf(keyword);
-      if (currentIndex !== -1 && currentIndex < keywordsMapping[currentStoryKeyword].length - 1) {
-        keywordsMapping[currentStoryKeyword] = keywordsMapping[currentStoryKeyword][currentIndex + 1];
+      if (currentIndex !== -1) {
+        if (currentIndex < keywordsMapping[currentStoryKeyword].length - 1) {
+          // Move to the next element in the array
+          keywordsMapping[currentStoryKeyword] = keywordsMapping[currentStoryKeyword].slice(currentIndex + 1).concat(keywordsMapping[currentStoryKeyword].slice(0, currentIndex + 1));
+        }
       }
     }
 
@@ -74,24 +70,25 @@ async function predictClassification(inputString, storySequence = []) {
 
 function generateStory(sequence, keyword) {
   const storyParts = {
-    suitcase:"Adi, seorang anak laki-laki, mengemas <b>koper</b> untuk liburan yang menyenangkan.",
-    airplane:"Liburan kali ini, Adi dan keluarganya naik <b>pesawat</b>.",
-    clouds:"Adi melihat keluar jendela dan melihat <b>awan</b> yang lembut.",
-    beach:"Di <b>pantai</b>, Adi bermain dengan bola pantai yang berwarna-warni.",
-    dog:"Di Sekitar pantai, Adi melihat seekor <b>anjing</b> jinak yang berlari dan mengibaskan ekornya.",
-    butterfly1:"Adi melihat <b>kupu-kupu</b> yang berterbangan di sekitar bunga-bunga.",
-    icecream:"Adi menikmati <b>es krim</b> yang lezat dengan taburan.",
-    dolphin:"Di air, Adi melihat <b>lumba-lumba</b> yang melompat-lompat.",
-    cookie:"Ibu Adi memberinya <b>kukis</b> yang lezat sebagai camilan.",
-    bus:"Hari berikutnya, Adi naik <b>bus</b> ke kebun binatang terdekat.",
-    leaves:"Di kebun binatang, Adi melihat jerapah tinggi yang sedang makan <b>daun</b>.",
-    tree:"Seekor monyet yang suka bermain berayun dari <b>pohon</b> ke pohon, membuat Andy tertawa.",
-    grass:"Adi melihat zebra bergaris yang sedang memakan <b>rumput</b>.",
-    basketball:"Setelah dari kebun binatang, Adi pergi ke taman dan bermain <b>bola basket</b>.",
-    butterfly2:"Adi menemukan <b>kupu-kupu</b> dan melihatnya terbang pergi.",
-    sun:"Saat <b>matahari</b> terbenam.",
-    house:"Adi merasa lelah tapi bahagia dan dia pun kembali ke <b>rumah</b>.",
+    suitcase: "Liburan kali ini, Adi dan keluarganya naik <span style='color:red'>(pesawat)</span>.",
+    airplane: "Adi melihat keluar jendela dan melihat <span style='color:red'>(awan)</span> yang lembut.",
+    clouds: "Di <span style='color:red'>(pantai)</span>, Adi bermain dengan bola pantai yang berwarna-warni.",
+    beach: "Di Sekitar pantai, Adi melihat seekor <span style='color:red'>(anjing)</span> jinak yang berlari dan mengibaskan ekornya.",
+    dog: "Adi melihat <span style='color:red'>(kupu-kupu)</span> yang berterbangan di sekitar bunga-bunga.",
+    butterfly1: "Adi menikmati <span style='color:red'>(es krim)</span> yang lezat dengan taburan.",
+    icecream: "Di air, Adi melihat <span style='color:red'>(lumba-lumba)</span> yang melompat-lompat.",
+    dolphin: "Ibu Adi memberinya <span style='color:red'>(kukis)</span> yang lezat sebagai camilan.",
+    cookie: "Hari berikutnya, Adi naik <span style='color:red'>(bus)</span> ke kebun binatang terdekat.",
+    bus: "Di kebun binatang, Adi melihat jerapah tinggi yang sedang makan <span style='color:red'>(daun)</span>.",
+    leaves: "Seekor monyet yang suka bermain berayun dari <span style='color:red'>(pohon)</span> ke pohon, membuat Andy tertawa.",
+    tree: "Adi melihat zebra bergaris yang sedang memakan <span style='color:red'>(rumput)</span>.",
+    grass: "Setelah dari kebun binatang, Adi pergi ke taman dan bermain <span style='color:red'>(bola basket)</span>.",
+    basketball: "Adi menemukan <span style='color:red'>(kupu-kupu)</span> dan melihatnya terbang pergi.",
+    butterfly2: "Saat <span style='color:red'>(matahari)</span> terbenam.",
+    sun: "Adi merasa lelah tapi bahagia dan dia pun kembali ke <span style='color:red'>(rumah)</span>.",
+    house: "Greet Jobs",
   };
+
 
   // Memastikan urutan story sesuai dengan sequence
   const story = sequence.map(keyword => storyParts[keyword]).join(' ');
