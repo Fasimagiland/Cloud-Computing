@@ -1,12 +1,12 @@
 const tf = require('@tensorflow/tfjs-node');
 const InputError = require('../exceptions/InputError');
 
-const classes = ['rain1', 'sun', 'book1', 'stars', 'book2', 'cake', 'strawberry', 'candle', 'necklace', 'rain2', 'umbrella', 'vase', 'hat', 'lollipop', 'eyes', 'fish', 'flower'];
+const classes = ['rain', 'sun', 'book1', 'stars', 'book2', 'cake', 'strawberry', 'candle', 'necklace', 'umbrella', 'vase', 'hat', 'lollipop', 'eyes', 'fish', 'flower'];
 
 let currentStoryKeyword = null; // Menyimpan keyword cerita saat ini
 
 const keywordsMapping = {
-  hujan: ['rain1', 'rain2'],
+  hujan: 'rain',
   matahari: 'sun',
   buku: ['book1', 'book2'],
   bintang: 'stars',
@@ -69,16 +69,15 @@ async function predictClassification(inputString, storySequence = []) {
 
 function generateStory(sequence) {
   const storyParts = {
-    rain1: "Lili tinggal sendirian bersama ibunya di sebuah <span style='color:red'>(matahari)</span>. Ketika bangun, dia menyadari bahwa hari ini adalah ulang tahun ibunya.",
+    rain: "Lili tinggal sendirian bersama ibunya di sebuah <span style='color:red'>(matahari)</span>. Ketika bangun, dia menyadari bahwa hari ini adalah ulang tahun ibunya.",
     sun: "Di sebuah rumah, terlihat seorang gadis sedang membaca <span style='color:red'>(buku)</span> dengan saksama, lili namanya.",
     book1: "Lili tinggal sendirian bersama ibunya di sebuah rumah kecil dengan ornamen <span style='color:red'>(bintang)</span> di dindingnya.",
     stars: "Selesai membaca <span style='color:red'>(buku)</span>, dia menyadari bahwa hari ini adalah ulang tahun ibunya.",
     book2: "Dia memutuskan untuk membuat <span style='color:red'>(kue)</span> istimewa untuk ulang tahun ibunya, jadi dia mengumpulkan semua bahan dan mulai membuatnya.",
     cake: "Kue itu dihias dengan <span style='color:red'>(stroberi)</span>, membuatnya terlihat sangat lezat.",
     strawberry: "Lili meletakkan <span style='color:red'>(lilin)</span> di atasnya dan mundur untuk mengagumi hasil kerjanya.",
-    candle: "Dia teringat bagaimana ibunya selalu memakai <span style='color:red'>(kalung)</span> cantik dengan liontin berbentuk bunga.",
-    necklace: "Saat Lili melihat ke luar jendela, dia melihat <span style='color:red'>(hujan)</span> sedikit reda.",
-    rain2: "Dia mengambil <span style='color:red'>(payung)</span> dan berlari keluar untuk memetik beberapa anggur dari kebun mereka. Meskipun hujan, dia merasa senang dan bersemangat dengan kejutan ulang tahun itu.",
+    candle: "Dia teringat bagaimana ibunya selalu memakai <span style='color:red'>(kalung)</span> cantik dengan liontin berbentuk bunga. Saat Lili melihat ke luar jendela, dia melihat hujan sedikit reda.",
+    necklace: "Dia mengambil <span style='color:red'>(payung)</span> dan berlari keluar untuk memetik beberapa anggur dari kebun mereka.",
     umbrella: "Setelah kembali ke dalam, Lili menata bunga segar di dalam <span style='color:red'>(vas)</span> di samping kue.",
     vase: "Dia juga menyiapkan hadiah istimewa, sebuah <span style='color:red'>(topi)</span> buatan tangan yang dijahitnya sendiri.",
     hat: "Dia meletakkan topi itu, bersama beberapa <span style='color:red'>(lolipop)</span> dan satu sendok es krim, di samping kue.",

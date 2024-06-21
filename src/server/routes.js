@@ -1,5 +1,5 @@
 const postPredictHandler = require('./handler'); // Sesuaikan path jika berbeda
-const homeHandler = require('./home');
+const homeHandler = require('./home'); // Sesuaikan path jika berbeda
 
 const stories = {
   story1: {
@@ -32,7 +32,6 @@ const routes = [
       return homeHandler(request, h, 'home');
     }
   },
-  
   {
     method: 'GET',
     path: '/stories',
@@ -46,7 +45,6 @@ const routes = [
       return h.response(storySummaries).code(200);
     },
   },
-
   {
     method: 'GET',
     path: '/stories/{id}',
@@ -61,7 +59,6 @@ const routes = [
       return h.response({ story: story.content }).code(200);
     }
   },
-
   {
     method: 'POST',
     path: '/stories/{id}',
@@ -73,14 +70,15 @@ const routes = [
         return h.response({ error: 'Story not found' }).code(404);
       }
       
-      const characterNameMap = {
+      const storyTypeMap = {
         story1: 'Jack',
         story2: 'Lily',
         story3: 'Andy',
         story4: 'Turtle'
       };
 
-      return postPredictHandler(request, h, characterNameMap[id]);
+      const storyType = storyTypeMap[id];
+      return postPredictHandler(request, h, storyType);
     },
     options: {
       payload: {
